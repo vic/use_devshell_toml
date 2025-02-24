@@ -83,9 +83,14 @@ url = "github:someorg/something"
 [inputs.anotherthing]
 url = "github:someorg/anotherting"
 
-[overlays]
+[[overlays]]
 something = "default" # includes overlays.default from the something input
+
+[[overlays]]
 anotherthing = "foo"  # includes overlays.foo from the anotherthing input
+
+[[overlays]]
+anotherthing = "bar"  # also includes overlays.bar from the anotherthing input
 ```
 
 ```toml
