@@ -3,7 +3,3 @@ url = "github:astro/deadnix"
 
 [[overlays]]
 deadnix = "default"
-
-#[nix-config]
-#extra-substituters = "https://cache.example.com"
-#extra-trusted-public-keys = "cache.example.com-1:z6v4aBPO5OZMRt0aenmWKfgfuLabAavY3E9Q1ya7J58="
