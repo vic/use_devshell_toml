@@ -4,36 +4,39 @@
     let
       inherit (nixpkgs) lib;
 
-      formatter = lib.genAttrs lib.systems.flakeExposed (
-        system: nixpkgs.legacyPackages.${system}.nixfmt-rfc-style
-      );
+      perSystem = f: lib.genAttrs lib.systems.flakeExposed (system: f {
+        inherit system;
+        pkgs = nixpkgs.legacyPackages.${system};
+      });
 
-      defaultApp = lib.genAttrs lib.systems.flakeExposed (
-        system: let
-          pkgs = nixpkgs.legacyPackages.${system};
+      formatter = perSystem ({pkgs, ...}: pkgs.nixfmt-rfc-style);
 
-          code = pkgs.substitute {
-            src = ./direnv.bash;
-            substitutions = [ 
-              "--subst-var-by" "MAIN_FLAKE" ./. 
-              "--subst-var-by" "TOML_FLAKE" ./templates/devshell-toml
-            ];
-          };
+      direnv_lib = pkgs: pkgs.substitute {
+        src = ./direnv.bash;
+        substitutions = [ 
+          "--subst-var-by" "MAIN_FLAKE" ./. 
+          "--subst-var-by" "TOML_FLAKE" ./templates/devshell-toml
+        ];
+      };
 
-          program = pkgs.writeShellScriptBin "install-direnv-lib" ''
+      apps = perSystem ({pkgs, ...}: let
+          installer = pkgs.writeShellScriptBin "install-direnv-lib" ''
           mkdir -p $HOME/.config/direnv/lib
-          ln -sfn ${code} $HOME/.config/direnv/lib/use_devshell_toml.sh
+          ln -sfn ${direnv_lib pkgs} $HOME/.config/direnv/lib/use_devshell_toml.sh
           '';
         in {
-          type = "app";
-          program = "${program}/bin/install-direnv-lib";
+          default = {
+            type = "app";
+            program = "${installer}/bin/install-direnv-lib";
+          };
         }
       );
 
     in
     {
-      inherit formatter defaultApp;
+      inherit formatter apps;
 
+      lib.direnv_lib = direnv_lib;
       lib.mkFlake = import ./lib/mkFlake.nix;
       lib.emptyFlake = builtins.readFile ./lib/emptyFlake.nix;
 
