@@ -16,23 +16,20 @@
 
       formatter = perSystem ({ pkgs, ... }: pkgs.nixfmt-rfc-style);
 
-      direnv_lib =
-        pkgs:
-        pkgs.substitute {
-          src = ./direnv.bash;
-          substitutions = [
-            "--subst-var-by"
-            "MAIN_FLAKE"
-            ./.
-          ];
-        };
+      libs = pkgs: {
+        direnv_fun =
+          pkgs.substitute {
+            src = ./direnv.bash;
+            substitutions = [
+              "--subst-var-by"
+              "MAIN_FLAKE"
+              ./.
+            ];
+          };
 
-      apps = perSystem (
-        { pkgs, ... }:
-        let
           installer = pkgs.writeShellScriptBin "install-direnv-lib" ''
             mkdir -p $HOME/.config/direnv/lib
-            ln -sfn ${direnv_lib pkgs} $HOME/.config/direnv/lib/use_devshell_toml.sh
+            ln -sfn ${(libs pkgs).direnv_fun} $HOME/.config/direnv/lib/use_devshell_toml.sh
           '';
 
           genConfigFlake = pkgs.writeShellScriptBin "gen-config-flake" ''
@@ -61,30 +58,70 @@
           CONFIG_FLAKE="$2"
           ${pkgs.gnused}/bin/sed -e "s#SOURCE_URL#$SOURCE_DIR#; s#CONFIG_URL#$CONFIG_FLAKE#" ${flake}
           '';
-        in
-        {
+      };
+
+      apps = perSystem (
+        { pkgs, ... }: {
           default = {
             type = "app";
-            program = "${installer}/bin/install-direnv-lib";
+            program = "${(libs pkgs).installer}/bin/install-direnv-lib";
           };
 
           gen-config-flake = {
             type = "app";
-            program = "${genConfigFlake}/bin/gen-config-flake";
+            program = "${(libs pkgs).genConfigFlake}/bin/gen-config-flake";
           };
 
           gen-source-flake = {
             type = "app";
-            program = "${genSourceFlake}/bin/gen-source-flake";
+            program = "${(libs pkgs).genSourceFlake}/bin/gen-source-flake";
           };
         }
       );
 
+
+      checks = perSystem({pkgs, ...}: let
+        checkTemplate = name: code: let 
+        in pkgs.stdenvNoCC.mkDerivation {
+          inherit name;
+          phases = ["check"];
+          check = ''
+          set -v
+          mkdir $out
+          cd $out
+          export PATH=${with pkgs; lib.makeBinPath [nix coreutils gnugrep]}
+          export HOME=$out
+          mkdir -p $HOME/.config/nix
+          echo "experimental-features = nix-command flakes" > $HOME/.config/nix/nix.conf
+          ${(libs pkgs).installer}/bin/install-direnv-lib
+          grep gen-config-flake $HOME/.config/direnv/lib/use_devshell_toml.sh
+          grep gen-source-flake $HOME/.config/direnv/lib/use_devshell_toml.sh
+          ${(libs pkgs).genConfigFlake}/bin/gen-config-flake ${./templates/${name}}/flake.toml > config.nix
+          ${(libs pkgs).genSourceFlake}/bin/gen-source-flake FAKE_SOURCE FAKE_CONFIG > source.nix
+          grep 'inputs.source.url = "path:FAKE_SOURCE"' source.nix
+          grep 'inputs.config.url = "path:FAKE_CONFIG"' source.nix
+          ${code}
+          '';
+        };
+
+      in {
+        "templates/custom-inputs-overlays" = checkTemplate "custom-inputs-overlays" ''
+          cat config.nix
+          cat config.nix | grep inputs | grep 'url = "github:astro/deadnix";'
+          cat config.nix | grep lib.overlays | grep 'deadnix = "default";'
+        '';
+
+        "templates/custom-nix-module" = checkTemplate "custom-nix-module" ''
+          cat config.nix
+          cat config.nix | grep 'inputs = { terraform = { url = "github:stackbuilders/nixpkgs-terraform"; }; };'
+          cat config.nix | grep lib.overlays | grep 'terraform = "default";'
+          cat config.nix | grep lib.nix-config | grep 'allowUnfree = true;'
+        '';
+      });
+
     in
     {
-      inherit formatter apps;
-
-      lib = { inherit direnv_lib; };
+      inherit formatter apps checks;
 
       templates = {
         default.path = ./templates/default;
