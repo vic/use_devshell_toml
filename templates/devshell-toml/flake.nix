@@ -7,7 +7,7 @@
   inputs.config.url = "path:empty";
 
   outputs =
-    inputs@{ nixpkgs, ... }:
+    inputs@{ ... }:
     let
       toml-file = "${inputs.source.outPath}/devshell.toml";
 

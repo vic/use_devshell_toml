@@ -1,1 +1,1 @@
-{ outputs = inputs: { }; }
+{ outputs = _inputs: { }; }
