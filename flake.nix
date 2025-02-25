@@ -24,9 +24,6 @@
             "--subst-var-by"
             "MAIN_FLAKE"
             ./.
-            "--subst-var-by"
-            "TOML_FLAKE"
-            ./templates/devshell-toml
           ];
         };
 
