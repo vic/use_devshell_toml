@@ -38,7 +38,7 @@
           genConfigFlake = pkgs.writeShellScriptBin "gen-config-flake" ''
           FLAKE_TOML="$1"
           if test -e "$FLAKE_TOML"; then
-            nix eval --file ${./lib/mkFlake.nix} --apply "f: f $FLAKE_TOML" --raw --impure --offline
+            ${pkgs.nix}/bin/nix eval --file ${./lib/mkFlake.nix} --apply "f: f $FLAKE_TOML" --raw --impure --offline
           else
             cat ${./lib/emptyFlake.nix}
           fi
@@ -50,16 +50,16 @@
               substitutions = [
                 "--replace-fail"
                 ''inputs.source.url = "path:empty"''
-                ''inputs.source.url = "SOURCE_URL"''
+                ''inputs.source.url = "path:SOURCE_URL"''
                 "--replace-fail"
                 ''inputs.config.url = "path:empty"''
-                ''inputs.config.url = "CONFIG_URL"''
+                ''inputs.config.url = "path:CONFIG_URL"''
               ];
             };
           in pkgs.writeShellScriptBin "gen-source-flake" ''
           SOURCE_DIR="$1"
           CONFIG_FLAKE="$2"
-          sed -e "s#SOURCE_URL#path:$SOURCE_DIR#; s#CONFIG_URL#path:$CONFIG_FLAKE#" ${flake}
+          ${pkgs.gnused}/bin/sed -e "s#SOURCE_URL#$SOURCE_DIR#; s#CONFIG_URL#$CONFIG_FLAKE#" ${flake}
           '';
         in
         {
@@ -84,9 +84,7 @@
     {
       inherit formatter apps;
 
-      lib.direnv_lib = direnv_lib;
-      lib.mkFlake = import ./lib/mkFlake.nix;
-      lib.emptyFlake = builtins.readFile ./lib/emptyFlake.nix;
+      lib = { inherit direnv_lib; };
 
       templates = {
         default.path = ./templates/default;
