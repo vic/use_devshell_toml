@@ -4,15 +4,35 @@ This repository provides a [direnv] function that allows
 you to load [devshell] TOML environments
 without you writting a single line of Nix code. (see [motivation](#motivation))
 
-# Usage
+![demo](https://github.com/user-attachments/assets/d4f157ba-1791-4367-abd3-3099ca19b550)
 
-#### Install the direnv function.
+
+# Quick Usage
+
+Just run this flake giving it as many package names you need.
+
+```
+nix run github:vic/use_devshell_toml [package ...]
+```
+
+It will make sure theuse_devshell_toml function is installed and will add all provided package names to
+`devshell.toml` and create an `.envrc` in current directory.
+
+The gif demo above shows this by adding `hello`, `cargo` and `pip` commands in a single command.
+
+Be sure to checkout [devshell] documentation for more info on how to customize your environment. 
+
+> That's it. Just a TOML file, no need for you to write a single line of Nix code.
+
+# Manual Setup
+
+#### Install/Update the direnv function.
 
 The following line will install a function in your direnv stdlib directory (`$HOME/.config/direnv/lib/use_devshell_toml.sh`).
-See also, stable [Releases](https://github.com/vic/use_devshell_toml/releases)
 
 ```bash
-nix run github:vic/use_devshell_toml  # Execute this any time you need to update from development branch
+# You might change ref to any branch or release version.
+nix run "github:vic/use_devshell_toml?ref=main#install"
 ```
 
 After installation, any `.envrc` file of yours can run `use devshell_toml`.
@@ -37,10 +57,6 @@ Alternatively you can use the following template to create both of them:
 ```bash
 nix flake init -t github:vic/use_devshell_toml
 ```
-
-Be sure to checkout [devshell] documentation for more info on how to customize your environment. 
-
-> That's it. Just a TOML file, no need for you to write a single line of Nix code.
 
 # Advanced Usage
 
