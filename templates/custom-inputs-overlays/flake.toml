@@ -1,5 +1,0 @@
-[inputs.deadnix]
-url = "github:astro/deadnix"
-
-[[overlays]]
-deadnix = "default"

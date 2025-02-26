@@ -29,13 +29,11 @@
           attr-overlay = name: value: [ ins.${name}.overlays.${value} ];
           overlays = with nixpkgs.lib; flatten (map (mapAttrsToList attr-overlay) overlays-config);
 
-          pkgs = import nixpkgs (
-            nix-config
-            // {
-              inherit system;
-              overlays = [ ins.devshell.overlays.default ] ++ overlays;
-            }
-          );
+          pkgs = import nixpkgs {
+            inherit system;
+            config = nix-config;
+            overlays = [ ins.devshell.overlays.default ] ++ overlays;
+          };
 
           default = pkgs.devshell.mkShell {
             _module.args = {

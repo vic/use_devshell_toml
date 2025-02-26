@@ -7,11 +7,15 @@ base="$PWD"
 for template in templates/*; do
 (
     set -euo pipefail
-    echo
-    echo
-    echo
-    echo
-    echo "=========== $template ==========="
+    echo " "
+    echo " "
+    echo " "
+    echo " "
+    echo " "
+    echo " "
+    echo "===== $template =====" | tr '[:print:]' '='
+    echo "||    $template    ||"
+    echo "===== $template =====" | tr '[:print:]' '='
     out="$(mktemp -d)"
     export HOME="$out"
     mkdir -p "$HOME/.config/nix"
@@ -24,10 +28,8 @@ for template in templates/*; do
     test -e "$HOME/.config/direnv/lib/use_devshell_toml.sh"
 
     echo "set -euo pipefail; source $HOME/.config/direnv/lib/use_devshell_toml.sh; use devshell_toml" > .envrc
-    direnv allow 
+    direnv allow
     direnv exec "$PWD" direnv dump json | jq -r .DEVSHELL_DIR > "$out/devshell_dir"
-    devshell_bin="$(< "$out/devshell_dir")/bin"
-    ls -l "$devshell_bin"
-    "$devshell_bin/menu"
+    ls -l "$(< "$out/devshell_dir")/bin"
 )
 done

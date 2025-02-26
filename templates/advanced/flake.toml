@@ -1,0 +1,10 @@
+[inputs.something]
+url = "git+https://gist.github.com/73eab091b33e7909065b21c61edf5a4d.git?ref=111640f547774877a42a634ebbb3df70801d5cca"
+
+[[overlays]]
+something = "foo"
+[[overlays]]
+something = "moo"
+
+[nix-config]
+allowUnfree = true

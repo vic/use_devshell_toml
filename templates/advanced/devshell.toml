@@ -1,0 +1,10 @@
+imports = [ "./bat.nix" ]
+
+[[commands]]
+package = "foo"
+
+[[commands]]
+package = "moo"
+
+[[commands]]
+package = "hello-unfree"
