@@ -1,17 +1,18 @@
 # `use devshell_toml` 
 
 This repository provides a [direnv] function that allows 
-you to load a [devshell] TOML environment
-without having to write a single line of Nix code. (see [motivation](#motivation))
+you to load [devshell] TOML environments
+without you writting a single line of Nix code. (see [motivation](#motivation))
 
 # Usage
 
-#### First install `use devshell_toml` direnv function.
+#### Install the direnv function.
 
 The following line will install a function in your direnv stdlib directory (`$HOME/.config/direnv/lib/use_devshell_toml.sh`).
+See also, stable [Releases](https://github.com/vic/use_devshell_toml/releases)
 
 ```bash
-nix run github:vic/use_devshell_toml
+nix run github:vic/use_devshell_toml  # Execute this any time you need to update from development branch
 ```
 
 After installation, any `.envrc` file of yours can run `use devshell_toml`.
