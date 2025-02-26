@@ -1,2 +1,7 @@
 [[commands]]
 package = "hello"
+
+[[commands]]
+name = "check"
+help = "test environment"
+command = "hello"

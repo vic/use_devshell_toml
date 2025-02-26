@@ -1,6 +1,10 @@
 [inputs.something]
 url = "git+https://gist.github.com/73eab091b33e7909065b21c61edf5a4d.git"
 
+[inputs.file]
+url = "path:./file"
+flake = false
+
 [[overlays]]
 something = "foo"
 [[overlays]]

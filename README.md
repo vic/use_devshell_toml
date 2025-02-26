@@ -66,7 +66,7 @@ url = "github:numtide/devshell"
 inputs.nixpkgs.follows = "nixpkgs" # make it depend on the previous nixpkgs branch
 
 [inputs.something]
-url = "path:some-directory"
+url = "path:./something" # use path:./ for relative dependencies
 flake = false # something that is not a flake itself
 ```
 

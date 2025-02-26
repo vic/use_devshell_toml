@@ -8,3 +8,13 @@ package = "moo"
 
 [[commands]]
 package = "hello-unfree"
+
+[[commands]]
+name = "check"
+help = "test environment"
+command = """
+hello-unfree
+foo
+moo
+bat
+"""

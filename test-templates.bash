@@ -29,7 +29,6 @@ for template in templates/*; do
 
     echo "set -euo pipefail; source $HOME/.config/direnv/lib/use_devshell_toml.sh; use devshell_toml" > .envrc
     direnv allow
-    direnv exec "$PWD" direnv dump json | jq -r .DEVSHELL_DIR > "$out/devshell_dir"
-    ls -l "$(< "$out/devshell_dir")/bin"
+    direnv exec "$PWD" check
 )
 done
