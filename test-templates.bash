@@ -11,7 +11,9 @@ echo "Writing output to $out"
     export HOME="$out"
     mkdir -p "$HOME/.config/nix"
     echo "extra-experimental-features = nix-command flakes" > "$HOME/.config/nix/nix.conf"
-    nix run . # install direnv lib
+
+    nix run .
+    test -f "$HOME/.config/direnv/lib/use_devshell_toml.sh"
 
     for template in templates/*; do
     (
