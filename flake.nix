@@ -47,16 +47,7 @@
           ln -sfn ${(libs pkgs).direnv_fun} $HOME/.config/direnv/lib/use_devshell_toml.sh
         '';
 
-        genConfigFlake = pkgs.writeShellScriptBin "gen-config-flake" ''
-          FLAKE_TOML="$1"
-          if test -e "$FLAKE_TOML"; then
-            ${pkgs.nix}/bin/nix eval --file ${./lib/mkFlake.nix} --apply "f: f $FLAKE_TOML" --raw --impure --offline
-          else
-            cat ${./lib/emptyFlake.nix}
-          fi
-        '';
-
-        genSourceFlake =
+        genFlakes =
           let
             flake = pkgs.substitute {
               src = ./templates/devshell-toml/flake.nix;
@@ -70,10 +61,28 @@
               ];
             };
           in
-          pkgs.writeShellScriptBin "gen-source-flake" ''
+          pkgs.writeShellScriptBin "gen-flakes" ''
+            export PATH="${
+              with pkgs;
+              lib.makeBinPath [
+                coreutils
+                gnused
+                nix
+              ]
+            }"
+
             SOURCE_DIR="$1"
-            CONFIG_FLAKE="$2"
-            ${pkgs.gnused}/bin/sed -e "s#SOURCE_URL#$SOURCE_DIR#; s#CONFIG_URL#$CONFIG_FLAKE#" ${flake}
+            SOURCE_FLAKE="$2"
+
+            mkdir -p "$SOURCE_FLAKE/config"
+
+            if test -e "$SOURCE_DIR/flake.toml"; then
+              nix eval --file ${./lib/mkFlake.nix} --apply "f: f $SOURCE_DIR/flake.toml" --raw --impure --offline > "$SOURCE_FLAKE/config/flake.nix"
+            else
+              cp -f ${./lib/emptyFlake.nix} "$SOURCE_FLAKE/config/flake.nix"
+            fi
+
+            sed -e "s#SOURCE_URL#$SOURCE_DIR#; s#CONFIG_URL#$SOURCE_FLAKE/config#" ${flake} > "$SOURCE_FLAKE/flake.nix"
           '';
       };
 
@@ -85,14 +94,9 @@
             program = "${(libs pkgs).installer}/bin/install-direnv-lib";
           };
 
-          gen-config-flake = {
+          gen-flakes = {
             type = "app";
-            program = "${(libs pkgs).genConfigFlake}/bin/gen-config-flake";
-          };
-
-          gen-source-flake = {
-            type = "app";
-            program = "${(libs pkgs).genSourceFlake}/bin/gen-source-flake";
+            program = "${(libs pkgs).genFlakes}/bin/gen-flakes";
           };
         }
       );
@@ -121,12 +125,12 @@
                 mkdir -p $HOME/.config/nix
                 echo "experimental-features = nix-command flakes" > $HOME/.config/nix/nix.conf
                 ${(libs pkgs).installer}/bin/install-direnv-lib
-                grep gen-config-flake $HOME/.config/direnv/lib/use_devshell_toml.sh
-                grep gen-source-flake $HOME/.config/direnv/lib/use_devshell_toml.sh
-                ${(libs pkgs).genConfigFlake}/bin/gen-config-flake ${./templates/${name}}/flake.toml > config.nix
-                ${(libs pkgs).genSourceFlake}/bin/gen-source-flake FAKE_SOURCE FAKE_CONFIG > source.nix
-                grep 'inputs.source.url = "path:FAKE_SOURCE"' source.nix
-                grep 'inputs.config.url = "path:FAKE_CONFIG"' source.nix
+                test -f $HOME/.config/direnv/lib/use_devshell_toml.sh
+                grep gen-flakes $HOME/.config/direnv/lib/use_devshell_toml.sh
+                ${(libs pkgs).genFlakes}/bin/gen-flakes "${./templates/${name}}" "$PWD"
+                cat flake.nix
+                grep "inputs.source.url = \"path:${./templates/${name}}\"" flake.nix
+                grep "inputs.config.url = \"path:$PWD/config\"" flake.nix
                 ${code}
               '';
             };
@@ -136,16 +140,17 @@
           formatting = (treefmt pkgs).config.build.check self;
 
           "templates/custom-inputs-overlays" = checkTemplate "custom-inputs-overlays" ''
-            cat config.nix
-            cat config.nix | grep inputs | grep 'url = "github:astro/deadnix";'
-            cat config.nix | grep lib.overlays | grep 'deadnix = "default";'
+            ls -la *
+            cat config/flake.nix
+            cat config/flake.nix | grep inputs | grep 'url = "github:astro/deadnix";'
+            cat config/flake.nix | grep lib.overlays | grep 'deadnix = "default";'
           '';
 
           "templates/custom-nix-module" = checkTemplate "custom-nix-module" ''
-            cat config.nix
-            cat config.nix | grep 'inputs = { terraform = { url = "github:stackbuilders/nixpkgs-terraform"; }; };'
-            cat config.nix | grep lib.overlays | grep 'terraform = "default";'
-            cat config.nix | grep lib.nix-config | grep 'allowUnfree = true;'
+            cat config/flake.nix
+            cat config/flake.nix | grep 'inputs = { terraform = { url = "github:stackbuilders/nixpkgs-terraform"; }; };'
+            cat config/flake.nix | grep lib.overlays | grep 'terraform = "default";'
+            cat config/flake.nix | grep lib.nix-config | grep 'allowUnfree = true;'
           '';
         }
       );
