@@ -2,6 +2,8 @@
 #
 # Execute via: nix run .#test-templates
 
+base="$PWD"
+
 for template in templates/*; do
 (
     set -euo pipefail
@@ -11,16 +13,16 @@ for template in templates/*; do
     mkdir -p "$HOME/.config/nix"
     echo "extra-experimental-features = nix-command flakes" > "$HOME/.config/nix/nix.conf"
 
-    nix run .
+    cd "$out"
+    cp -rf "$base/$template"/{*,.*} "$out/"
 
-    cd "$template"
-    eval "$(direnv hook bash)"
-    # shellcheck source=/dev/null
-    source "$HOME/.config/direnv/lib/use_devshell_toml.sh"
+    nix run "path:$base"
+    test -e "$HOME/.config/direnv/lib/use_devshell_toml.sh"
 
+    echo "set -veuo pipefail; source $HOME/.config/direnv/lib/use_devshell_toml.sh; use devshell_toml" > .envrc
     direnv allow 
-    direnv exec "$PWD" direnv dump json | jq -r .DEVSHELL_DIR | tee "$out/$(basename "$template")"
-    devshell_bin="$(< "$out/$(basename "$template")")/bin"
+    direnv exec "$PWD" direnv dump json | jq -r .DEVSHELL_DIR | tee "$out/devshell_dir"
+    devshell_bin="$(< "$out/devshell_dir")/bin"
     ls -l "$devshell_bin"
     "$devshell_bin/menu"
 )
