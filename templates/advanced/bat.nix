@@ -1,5 +1,7 @@
-{pkgs, ...}: let 
+{ pkgs, ... }:
+let
   bat = pkgs.writeShellScriptBin "bat" "echo BAT";
-in {
+in
+{
   commands = [ { package = bat; } ];
 }

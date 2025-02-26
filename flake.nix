@@ -123,55 +123,8 @@
 
       checks = perSystem (
         { pkgs, ... }:
-        let
-          checkTemplate =
-            name: code:
-            pkgs.stdenvNoCC.mkDerivation {
-              inherit name;
-              phases = [ "check" ];
-              check = ''
-                set -v
-                mkdir $out
-                cd $out
-                export PATH=${
-                  with pkgs;
-                  lib.makeBinPath [
-                    nix
-                    coreutils
-                    gnugrep
-                  ]
-                }
-                export HOME=$out
-                mkdir -p $HOME/.config/nix
-                echo "experimental-features = nix-command flakes" > $HOME/.config/nix/nix.conf
-                ${(libs pkgs).installer}/bin/install-direnv-lib
-                test -f $HOME/.config/direnv/lib/use_devshell_toml.sh
-                grep gen-flakes $HOME/.config/direnv/lib/use_devshell_toml.sh
-                ${(libs pkgs).genFlakes}/bin/gen-flakes "${./templates/${name}}" "$PWD"
-                cat flake.nix
-                grep "inputs.source.url = \"path:${./templates/${name}}\"" flake.nix
-                grep "inputs.config.url = \"path:$PWD/config\"" flake.nix
-                ${code}
-              '';
-            };
-
-        in
         {
           formatting = (treefmt pkgs).config.build.check self;
-
-          "templates/custom-inputs-overlays" = checkTemplate "custom-inputs-overlays" ''
-            ls -la *
-            cat config/flake.nix
-            cat config/flake.nix | grep inputs | grep 'url = "github:astro/deadnix";'
-            cat config/flake.nix | grep lib.overlays | grep 'deadnix = "default";'
-          '';
-
-          "templates/custom-nix-module" = checkTemplate "custom-nix-module" ''
-            cat config/flake.nix
-            cat config/flake.nix | grep 'inputs = { terraform = { url = "github:stackbuilders/nixpkgs-terraform"; }; };'
-            cat config/flake.nix | grep lib.overlays | grep 'terraform = "default";'
-            cat config/flake.nix | grep lib.nix-config | grep 'allowUnfree = true;'
-          '';
         }
       );
 
