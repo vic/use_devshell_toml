@@ -4,16 +4,39 @@ on:
     branches: [main]
 
 jobs:
-  lints:
+  flake-check:
     name: nix flake check
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: "write"
-      contents: "read"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest ]
     steps:
       - uses: actions/checkout@v4
-      - uses: DeterminateSystems/nix-installer-action@main
-        with:
-          determinate: false
+      - uses: cachix/install-nix-action@v30
       - run: nix flake check
-      - run: nix run .#test-templates
+
+  find-templates:
+    name: Find Templates
+    runs-on: ubuntu-latest
+    outputs:
+      folders: ${{ steps.jobs.outputs.folders }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: jobs
+        run: |
+          folders=$(find templates -mindepth 1 -maxdepth 1 -type d | jq -R . | jq -sc .)
+          echo "$folders"
+          echo "folders=$folders" >> $GITHUB_OUTPUT
+
+  template-check:
+    name: Template check
+    needs: [find-templates]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest ]
+        folder: ${{ fromJSON(needs.find-templates.outputs.folders) }}
+    steps:
+      - uses: cachix/install-nix-action@v30
+      - uses: actions/checkout@v4
+      - run: nix run .#test-templates -- ${{ matrix.folder }}

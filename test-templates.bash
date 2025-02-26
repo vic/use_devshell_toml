@@ -3,10 +3,9 @@
 # Execute via: nix run .#test-templates
 
 base="$PWD"
-
-for template in templates/*; do
-(
+function test_template() {
     set -euo pipefail
+    template="$1"
     echo " "
     echo " "
     echo " "
@@ -30,5 +29,12 @@ for template in templates/*; do
     echo "set -euo pipefail; source $HOME/.config/direnv/lib/use_devshell_toml.sh; use devshell_toml" > .envrc
     direnv allow
     direnv exec "$PWD" check
-)
-done
+}
+
+if test -z "${1:-}"; then
+    for template in templates/*; do
+      (test_template "$template")
+    done
+else
+  (test_template "$1")
+fi
