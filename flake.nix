@@ -32,8 +32,8 @@
 
       formatter = perSystem ({ pkgs, ... }: (treefmt pkgs).config.build.wrapper);
 
-      libs = pkgs: {
-        direnv_fun = pkgs.substitute {
+      libs = pkgs: rec {
+        direnv_bash = pkgs.substitute {
           src = ./direnv.bash;
           substitutions = [
             "--subst-var-by"
@@ -42,10 +42,34 @@
           ];
         };
 
-        installer = pkgs.writeShellScriptBin "install-direnv-lib" ''
+        installer = pkgs.writeShellScriptBin "install" ''
           mkdir -p $HOME/.config/direnv/lib
-          ln -sfn ${(libs pkgs).direnv_fun} $HOME/.config/direnv/lib/use_devshell_toml.sh
+          ln -sfn ${direnv_bash} $HOME/.config/direnv/lib/use_devshell_toml.sh
+          echo "Installed use_devshell_toml.sh on direnv lib."
         '';
+
+        app = pkgs.writeShellApplication {
+          name = "app";
+          runtimeInputs = with pkgs; [ ];
+          text = ''
+            if ! test -e "$HOME/.config/direnv/lib/use_devshell_toml.sh"; then
+              ${installer}/bin/install
+            fi
+
+            test -z "''${1:-}" && exit 0 # terminate if no package names were given
+
+            for package in "''${@:-}"; do
+              echo "Adding package '$package' to devshell.toml"
+              printf '\n[[commands]]\npackage = "%s"\n' "$package" >> devshell.toml
+            done
+
+            if ! test -e "$PWD/.envrc"; then
+              echo "use devshell_toml" > "$PWD/.envrc"
+            fi
+
+            direnv allow
+          '';
+        };
 
         genFlakes =
           let
@@ -92,7 +116,12 @@
         {
           default = {
             type = "app";
-            program = "${(libs pkgs).installer}/bin/install-direnv-lib";
+            program = "${(libs pkgs).app}/bin/app";
+          };
+
+          install = {
+            type = "app";
+            program = "${(libs pkgs).installer}/bin/install";
           };
 
           gen-flakes = {
