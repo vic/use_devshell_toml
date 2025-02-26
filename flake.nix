@@ -50,7 +50,7 @@
         genFlakes =
           let
             flake = pkgs.substitute {
-              src = ./templates/devshell-toml/flake.nix;
+              src = ./lib/devshell-flake.nix;
               substitutions = [
                 "--replace-fail"
                 ''inputs.source.url = "path:empty"''
@@ -77,9 +77,9 @@
             mkdir -p "$SOURCE_FLAKE/config"
 
             if test -e "$SOURCE_DIR/flake.toml"; then
-              nix eval --file ${./lib/mkFlake.nix} --apply "f: f $SOURCE_DIR/flake.toml" --raw --impure --offline > "$SOURCE_FLAKE/config/flake.nix"
+              nix eval --file ${./lib/make-config-flake.nix} --apply "f: f $SOURCE_DIR/flake.toml" --raw --impure --offline > "$SOURCE_FLAKE/config/flake.nix"
             else
-              cp -f ${./lib/emptyFlake.nix} "$SOURCE_FLAKE/config/flake.nix"
+              cp -f ${./lib/empty-config-flake.nix} "$SOURCE_FLAKE/config/flake.nix"
             fi
 
             sed -e "s#SOURCE_URL#$SOURCE_DIR#; s#CONFIG_URL#$SOURCE_FLAKE/config#" ${flake} > "$SOURCE_FLAKE/flake.nix"
