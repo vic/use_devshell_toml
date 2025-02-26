@@ -16,3 +16,4 @@ jobs:
         with:
           determinate: false
       - run: nix flake check
+      - run: nix run .#test-templates

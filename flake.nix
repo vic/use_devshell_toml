@@ -98,6 +98,25 @@
             type = "app";
             program = "${(libs pkgs).genFlakes}/bin/gen-flakes";
           };
+
+          test-templates =
+            let
+              app =
+                with pkgs;
+                writeShellApplication {
+                  name = "test-templates";
+                  runtimeInputs = [
+                    direnv
+                    nix
+                    coreutils
+                  ];
+                  text = lib.readFile ./test-templates.bash;
+                };
+            in
+            {
+              type = "app";
+              program = "${app}/bin/test-templates";
+            };
         }
       );
 
