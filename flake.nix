@@ -109,6 +109,7 @@
                     direnv
                     nix
                     coreutils
+                    jq
                   ];
                   text = lib.readFile ./test-templates.bash;
                 };

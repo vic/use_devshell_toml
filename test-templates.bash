@@ -19,7 +19,10 @@ out="$(mktemp -d)"
         echo "=========== $template ==========="
         cd "$template"
         direnv allow 
-        devshell menu
+        direnv exec "$PWD" direnv dump json | jq -r .DEVSHELL_DIR | tee "$out/$(basename "$template")"
+        devshell_bin="$(< "$out/$(basename "$template")")/bin"
+        ls -l "$devshell_bin"
+        "$devshell_bin/menu"
     )
     done
 )
