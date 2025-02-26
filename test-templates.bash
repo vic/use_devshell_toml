@@ -4,7 +4,7 @@
 
 for template in templates/*; do
 (
-    set -veuo pipefail
+    set -euo pipefail
     echo "=========== $template ==========="
     out="$(mktemp -d)"
     export HOME="$out"
@@ -15,6 +15,7 @@ for template in templates/*; do
 
     cd "$template"
     eval "$(direnv hook bash)"
+    # shellcheck source=/dev/null
     source "$HOME/.config/direnv/lib/use_devshell_toml.sh"
 
     direnv allow 
