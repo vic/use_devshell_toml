@@ -22,7 +22,7 @@ for template in templates/*; do
     echo "extra-experimental-features = nix-command flakes" > "$HOME/.config/nix/nix.conf"
 
     cd "$out"
-    cp -rf "$base/$template"/{*,.*} "$out/"
+    cp -rf "$base/$template"/* "$out/"
 
     nix run "path:$base"
     test -e "$HOME/.config/direnv/lib/use_devshell_toml.sh"

@@ -1,5 +1,5 @@
 [inputs.something]
-url = "git+https://gist.github.com/73eab091b33e7909065b21c61edf5a4d.git"
+url = "path:./something"
 
 [inputs.file]
 url = "path:./file"
