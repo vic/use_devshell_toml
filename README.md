@@ -4,7 +4,7 @@ This repository provides a [direnv] function that allows
 you to load [devshell] TOML environments
 without you writting a single line of Nix code. (see [motivation](#motivation))
 
-![demo](https://github.com/user-attachments/assets/d4f157ba-1791-4367-abd3-3099ca19b550)
+![demo](https://github.com/user-attachments/assets/d573e297-9f81-49c4-984d-51431fe96118)
 
 
 # Quick Usage
