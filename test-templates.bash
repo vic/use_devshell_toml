@@ -12,10 +12,11 @@ for template in templates/*; do
     echo "extra-experimental-features = nix-command flakes" > "$HOME/.config/nix/nix.conf"
 
     nix run .
-    cat "$HOME/.config/direnv/lib/use_devshell_toml.sh"
 
     cd "$template"
     eval "$(direnv hook bash)"
+    source "$HOME/.config/direnv/lib/use_devshell_toml.sh"
+
     direnv allow 
     direnv exec "$PWD" direnv dump json | jq -r .DEVSHELL_DIR | tee "$out/$(basename "$template")"
     devshell_bin="$(< "$out/$(basename "$template")")/bin"
