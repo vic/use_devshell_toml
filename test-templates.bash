@@ -5,8 +5,6 @@
 set -euo pipefail
 
 out="$(mktemp -d)"
-echo "Writing output to $out"
-
 (
     export HOME="$out"
     mkdir -p "$HOME/.config/nix"
@@ -20,9 +18,8 @@ echo "Writing output to $out"
     (
         echo "=========== $template ==========="
         cd "$template"
-        direnv allow
-        direnv dump json > "$out/$(basename "$template").json"
-        direnv exec "$PWD" menu > "$out/$(basename "$template").menu"
+        direnv allow 
+        devshell menu
     )
     done
 )
