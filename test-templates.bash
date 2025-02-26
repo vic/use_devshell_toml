@@ -6,12 +6,6 @@ base="$PWD"
 function test_template() {
     set -euo pipefail
     template="$1"
-    echo " "
-    echo " "
-    echo " "
-    echo " "
-    echo " "
-    echo " "
     echo "===== $template =====" | tr '[:print:]' '='
     echo "||    $template    ||"
     echo "===== $template =====" | tr '[:print:]' '='
@@ -21,14 +15,17 @@ function test_template() {
     echo "extra-experimental-features = nix-command flakes" > "$HOME/.config/nix/nix.conf"
 
     cd "$out"
+    touch "$out/.envrc" && direnv deny "$out" # temporarily until we setup .envrc
+
     cp -rf "$base/$template"/* "$out/"
 
     nix run "path:$base"
     test -e "$HOME/.config/direnv/lib/use_devshell_toml.sh"
 
-    echo "set -euo pipefail; source $HOME/.config/direnv/lib/use_devshell_toml.sh; use devshell_toml" > .envrc
-    direnv allow
-    direnv exec "$PWD" check
+    echo "set -euo pipefail; source $HOME/.config/direnv/lib/use_devshell_toml.sh; use devshell_toml" > "$out/.envrc"
+
+    direnv allow "$out"
+    direnv exec "$out" check
 }
 
 if test -z "${1:-}"; then
