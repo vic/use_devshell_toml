@@ -15,8 +15,8 @@ Just run this flake giving it as many package names you need.
 nix run github:vic/use_devshell_toml [package ...]
 ```
 
-It will make sure theuse_devshell_toml function is installed and will add all provided package names to
-`devshell.toml` and create an `.envrc` in current directory.
+It will make sure the `use_devshell_toml.sh` function is installed into your direnv lib, and 
+will add all provided package names to `devshell.toml` and create an `.envrc` in current directory.
 
 The gif demo above shows this by adding `hello`, `cargo` and `pip` commands in a single command.
 
