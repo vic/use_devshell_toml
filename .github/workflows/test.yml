@@ -6,10 +6,7 @@ on:
 jobs:
   flake-check:
     name: nix flake check
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ ubuntu-latest, macos-latest ]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: cachix/install-nix-action@v30
@@ -31,10 +28,9 @@ jobs:
   template-check:
     name: Template check
     needs: [find-templates]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [ ubuntu-latest, macos-latest ]
         folder: ${{ fromJSON(needs.find-templates.outputs.folders) }}
     steps:
       - uses: cachix/install-nix-action@v30

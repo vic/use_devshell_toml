@@ -22,6 +22,7 @@ function test_template() {
     nix run "path:$base"
     test -e "$HOME/.config/direnv/lib/use_devshell_toml.sh"
 
+    # use bash strict inside .envrc
     echo "set -euo pipefail; source $HOME/.config/direnv/lib/use_devshell_toml.sh; use devshell_toml" > "$out/.envrc"
 
     direnv allow "$out"
