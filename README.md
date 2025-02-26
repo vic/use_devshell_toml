@@ -186,6 +186,7 @@ people already using [direnv]. Without them having to write any nix plumbing cod
 #### Downsides
 
 - Flake is generated in hidden `.direnv/devshell-flake` directory whenever the user enters the project root.
+- Since flake is generated in a git ignored dir, sometimes you might need to `rm -rf .direnv && direnv allow` to fully reload.
 
 
 [direnv]: https://direnv.net
