@@ -13,7 +13,8 @@ echo "Writing output to $out"
     echo "extra-experimental-features = nix-command flakes" > "$HOME/.config/nix/nix.conf"
 
     nix run .
-    test -f "$HOME/.config/direnv/lib/use_devshell_toml.sh"
+    test -e "$HOME/.config/direnv/lib/use_devshell_toml.sh"
+    eval "$(direnv hook bash)"
 
     for template in templates/*; do
     (
