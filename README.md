@@ -169,7 +169,7 @@ people already using [direnv]. Without them having to write any nix plumbing cod
 
 #### Downsides
 
-- Flake is generated in hidden `.direnv/source_flake` directory whenever the user enters the project root.
+- Flake is generated in hidden `.direnv/devshell-flake` directory whenever the user enters the project root.
 
 
 [direnv]: https://direnv.net

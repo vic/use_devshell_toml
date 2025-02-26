@@ -11,8 +11,8 @@ fi
 watch_file devshell.toml
 watch_file flake.toml
 
-source_flake="$(direnv_layout_dir)"/source-flake
-nix run "path:@MAIN_FLAKE@#gen-flakes" "$PWD" "$source_flake"
-use_flake "path:$source_flake" "$@"
+devshell_flake="$(direnv_layout_dir)"/devshell-flake
+nix run "path:@MAIN_FLAKE@#gen-flakes" "$PWD" "$devshell_flake"
+use_flake "path:$devshell_flake" "$@"
 
 }
