@@ -50,7 +50,6 @@
 
         app = pkgs.writeShellApplication {
           name = "app";
-          runtimeInputs = with pkgs; [ ];
           text = ''
             if ! test -e "$HOME/.config/direnv/lib/use_devshell_toml.sh"; then
               ${installer}/bin/install
@@ -68,6 +67,35 @@
             fi
 
             direnv allow
+          '';
+        };
+
+        demo = pkgs.writeShellApplication {
+          name = "demo";
+          text = ''
+            set -a
+            export BASE="$PWD"
+            export PATH="${
+              with pkgs;
+              lib.makeBinPath [
+                vhs
+                nix
+                direnv
+                coreutils
+                which
+                bash
+              ]
+            }"
+            HOME="$(mktemp -d)"
+            export HOME
+            cd "$HOME"
+            mkdir -p "$HOME/.config/nix"
+            echo "extra-experimental-features = nix-command flakes" > "$HOME/.config/nix/nix.conf"
+            direnv hook bash > .hook
+            # shellcheck source=/dev/null
+            source .hook
+            vhs "$BASE/demo.tape"
+            cp -f "$PWD/demo.gif" "$BASE/demo.gif"
           '';
         };
 
@@ -117,6 +145,11 @@
           default = {
             type = "app";
             program = "${(libs pkgs).app}/bin/app";
+          };
+
+          demo = {
+            type = "app";
+            program = "${(libs pkgs).demo}/bin/demo";
           };
 
           install = {

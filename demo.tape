@@ -1,16 +1,13 @@
-Output demo.gif
-Set Shell bash
-Set FontSize 12
-Set Theme Dracula
+# Usage: nix run .#demo
 
-Hide
-Type "source demo.sh"
-Enter
-Show
+Output demo.gif
+Set FontSize 13
+Set Shell bash
+Env PS1 "> "
 
 Type "# No cargo command available"
 Enter
-Type "type -p cargo"
+Type "which cargo"
 Enter
 
 Type "# Add commands to devshell.toml"
