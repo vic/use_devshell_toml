@@ -21,16 +21,15 @@ After installation, any `.envrc` file of yours can run `use devshell_toml`.
 
 Create a simple `devshell.toml` and `.envrc` on your current directory.
 
-
-```bash
-# .envrc
-use devshell_toml
-```
-
 ```toml
 # devshell.toml
 [[commands]]
 package = "hello"  # see https://numtide.github.io/devshell/
+```
+
+```bash
+# .envrc
+use devshell_toml
 ```
 
 Alternatively you can use the following template to create both of them:
