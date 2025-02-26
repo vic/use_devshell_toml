@@ -78,7 +78,7 @@
 
             if test -e "$SOURCE_DIR/flake.toml"; then
               nix eval --file ${./lib/make-config-flake.nix} --apply "f: f $SOURCE_DIR/flake.toml" --raw --impure --offline | \
-                sed -e "s#path:./#path:$SOURCE_DIR/#g" > "$SOURCE_FLAKE/config/flake.nix"
+                sed -e "s#url = \"path:./#url = \"path:$SOURCE_DIR/#g" > "$SOURCE_FLAKE/config/flake.nix"
             else
               cp -f ${./lib/empty-config-flake.nix} "$SOURCE_FLAKE/config/flake.nix"
             fi
