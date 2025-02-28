@@ -1,34 +1,29 @@
 {
   inputs.devshell.url = "github:numtide/devshell";
+  inputs.systems.url = "github:nix-systems/default";
 
-  inputs.source.url = "path:empty";
+  inputs.source.url = "path:./source";
   inputs.source.flake = false;
 
-  inputs.config.url = "path:empty";
+  inputs.config.url = "path:./config";
 
   outputs =
-    inputs@{
-      # deadnix: skip
-      nixpkgs,
-      ...
-    }:
+    inputs:
     let
-      toml-file = "${inputs.source.outPath}/devshell.toml";
-
       ins = inputs // inputs.config.inputs;
-      nixpkgs = ins.nixpkgs;
+      devshell_toml = ins.source + "/devshell.toml";
 
-      perSystem = nixpkgs.lib.genAttrs nixpkgs.lib.systems.flakeExposed;
+      nixpkgs = ins.nixpkgs or ins.devshell.inputs.nixpkgs;
+      perSystem = nixpkgs.lib.genAttrs (import ins.systems);
+
+      nix-config = ins.config.lib.nix-config or { };
+      overlays-config = ins.config.lib.overlays or [ ];
+      attr-overlay = name: value: [ ins.${name}.overlays.${value} ];
+      overlays = with nixpkgs.lib; flatten (map (mapAttrsToList attr-overlay) overlays-config);
 
       devShells = perSystem (
         system:
         let
-
-          nix-config = ins.config.lib.nix-config or { };
-          overlays-config = ins.config.lib.overlays or [ ];
-          attr-overlay = name: value: [ ins.${name}.overlays.${value} ];
-          overlays = with nixpkgs.lib; flatten (map (mapAttrsToList attr-overlay) overlays-config);
-
           pkgs = import nixpkgs {
             inherit system;
             config = nix-config;
@@ -39,7 +34,7 @@
             _module.args = {
               inputs = ins;
             };
-            imports = [ (pkgs.devshell.importTOML toml-file) ];
+            imports = [ (pkgs.devshell.importTOML devshell_toml) ];
           };
         in
         {

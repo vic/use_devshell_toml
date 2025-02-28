@@ -19,11 +19,11 @@ function test_template() {
 
     cp -rf "$base/$template"/* "$out/"
 
-    nix run "path:$base"
+    nix run "path:$base" --show-trace
     test -e "$HOME/.config/direnv/lib/use_devshell_toml.sh"
 
     # use bash strict inside .envrc
-    echo "set -euo pipefail; source $HOME/.config/direnv/lib/use_devshell_toml.sh; use devshell_toml" > "$out/.envrc"
+    echo "set -euo pipefail; source $HOME/.config/direnv/lib/use_devshell_toml.sh; use devshell_toml --show-trace" > "$out/.envrc"
 
     direnv allow "$out"
     direnv exec "$out" check

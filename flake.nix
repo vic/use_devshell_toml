@@ -99,44 +99,32 @@
           '';
         };
 
-        genFlakes =
-          let
-            flake = pkgs.substitute {
-              src = ./lib/devshell-flake.nix;
-              substitutions = [
-                "--replace-fail"
-                ''inputs.source.url = "path:empty"''
-                ''inputs.source.url = "path:SOURCE_URL"''
-                "--replace-fail"
-                ''inputs.config.url = "path:empty"''
-                ''inputs.config.url = "path:CONFIG_URL"''
-              ];
-            };
-          in
-          pkgs.writeShellScriptBin "gen-flakes" ''
-            export PATH="${
-              with pkgs;
-              lib.makeBinPath [
-                coreutils
-                gnused
-                nix
-              ]
-            }"
-
+        genFlakes = pkgs.writeShellApplication {
+          name = "gen-flakes";
+          runtimeInputs = with pkgs; [
+            coreutils
+            gnused
+            nix
+          ];
+          text = ''
             SOURCE_DIR="$1"
-            SOURCE_FLAKE="$2"
+            FLAKE_DEST="$2"
 
-            mkdir -p "$SOURCE_FLAKE/config"
+            mkdir -p "$FLAKE_DEST/config"
+            sed -e "s#path:./source#path:$SOURCE_DIR#" ${./lib/devshell-flake.nix} > "$FLAKE_DEST/flake.nix"
 
             if test -e "$SOURCE_DIR/flake.toml"; then
-              nix eval --file ${./lib/make-config-flake.nix} --apply "f: f $SOURCE_DIR/flake.toml" --raw --impure --offline | \
-                sed -e "s#url = \"path:./#url = \"path:$SOURCE_DIR/#g" > "$SOURCE_FLAKE/config/flake.nix"
+              nix eval \
+                --file ${./lib/make-config-flake.nix} \
+                --apply "f: f $SOURCE_DIR/flake.toml" \
+                --extra-experimental-features "flakes nix-command" \
+                --raw --impure --offline |\
+                sed -e "s#url = \"path:./#url = \"path:$SOURCE_DIR/#g" > "$FLAKE_DEST/config/flake.nix"
             else
-              cp -f ${./lib/empty-config-flake.nix} "$SOURCE_FLAKE/config/flake.nix"
+              cp -f ${./lib/empty-config-flake.nix} "$FLAKE_DEST/config/flake.nix"
             fi
-
-            sed -e "s#SOURCE_URL#$SOURCE_DIR#; s#CONFIG_URL#$SOURCE_FLAKE/config#" ${flake} > "$SOURCE_FLAKE/flake.nix"
           '';
+        };
       };
 
       apps = perSystem (
