@@ -5,7 +5,6 @@
 base="$PWD"
 function test_template() {
   set -vaeuo pipefail
-  env
   template="$1"
   echo "===== $template =====" | tr '[:print:]' '='
   echo "||    $template    ||"
@@ -16,6 +15,8 @@ function test_template() {
   else
     out="$HOME"
   fi
+  env
+
   mkdir -p "$HOME/.config/nix"
   echo "extra-experimental-features = nix-command flakes" >"$HOME/.config/nix/nix.conf"
 
