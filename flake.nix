@@ -129,7 +129,7 @@
         test-templates = pkgs.writeShellApplication {
           name = "test-templates";
           text = ''
-            env -i CI="$CI" PATH="${
+            env -i CI="''${CI:-}" PATH="${
               with pkgs;
               lib.makeBinPath [
                 direnv
