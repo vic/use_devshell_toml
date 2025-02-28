@@ -11,10 +11,11 @@ function test_template() {
   echo "===== $template =====" | tr '[:print:]' '='
   if test -z "${CI:-}"; then
     out="$(mktemp -d)"
-    export HOME="$out"
   else
-    out="$HOME"
+    out="$(pwd)/ci"
   fi
+  export HOME="$out"
+
   env
 
   mkdir -p "$HOME/.config/nix"
