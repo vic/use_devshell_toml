@@ -1,6 +1,6 @@
 # Custom nixpkgs distribution
 [inputs.nixpkgs]
-url = "github:nixos/nixpkgs?ref=release-24.11"
+url = "github:nixos/nixpkgs/nixpkgs-unstable"
 [inputs.devshell]
 url = "github:numtide/devshell"
 inputs.nixpkgs.follows = "nixpkgs"
