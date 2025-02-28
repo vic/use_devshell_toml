@@ -1,14 +1,29 @@
-[inputs.something]
-url = "path:./something"
+# Custom nixpkgs distribution
+[inputs.nixpkgs]
+url = "github:nixos/nixpkgs?ref=release-24.11"
+[inputs.devshell]
+url = "github:numtide/devshell"
+inputs.nixpkgs.follows = "nixpkgs"
 
+# Custom exposed systems
+[inputs.systems]
+url = "path:./systems.nix"
+flake = false
+
+# non-flake dependency read by bat.nix
 [inputs.file]
 url = "path:./file"
 flake = false
 
+# example flake exposing two overlays
+[inputs.something]
+url = "path:./something"
+
+# load overlays
 [[overlays]]
 something = "foo"
 [[overlays]]
 something = "moo"
 
 [nix-config]
-allowUnfree = true
+allowUnfree = true # because we want hello-unfree

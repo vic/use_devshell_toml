@@ -1,6 +1,10 @@
 {
-  inputs.devshell.url = "github:numtide/devshell";
+
+  inputs.nixpkgs.url = "github:cachix/devenv-nixpkgs/rolling";
   inputs.systems.url = "github:nix-systems/default";
+
+  inputs.devshell.url = "github:numtide/devshell";
+  inputs.devshell.inputs.nixpkgs.follows = "nixpkgs";
 
   inputs.source.url = "path:./source";
   inputs.source.flake = false;
