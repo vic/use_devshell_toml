@@ -138,7 +138,7 @@
                 jq
                 bash
               ]
-            }" ${pkgs.bash}/bin/bash --noprofile --norc ${./test-templates.bash}
+            }" ${pkgs.bash}/bin/bash --noprofile --norc ${./test-templates.bash} "''${@}"
           '';
         };
 
