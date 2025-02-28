@@ -125,6 +125,23 @@
             fi
           '';
         };
+
+        test-templates = pkgs.writeShellApplication {
+          name = "test-templates";
+          text = ''
+            env -i PATH="${
+              with pkgs;
+              lib.makeBinPath [
+                direnv
+                nix
+                coreutils
+                jq
+                bash
+              ]
+            }" ${pkgs.bash}/bin/bash --noprofile --norc ${./test-templates.bash}
+          '';
+        };
+
       };
 
       apps = perSystem (
@@ -150,25 +167,10 @@
             program = "${(libs pkgs).genFlakes}/bin/gen-flakes";
           };
 
-          test-templates =
-            let
-              app =
-                with pkgs;
-                writeShellApplication {
-                  name = "test-templates";
-                  runtimeInputs = [
-                    direnv
-                    nix
-                    coreutils
-                    jq
-                  ];
-                  text = lib.readFile ./test-templates.bash;
-                };
-            in
-            {
-              type = "app";
-              program = "${app}/bin/test-templates";
-            };
+          test-templates = {
+            type = "app";
+            program = "${(libs pkgs).test-templates}/bin/test-templates";
+          };
         }
       );
 

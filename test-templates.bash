@@ -4,7 +4,8 @@
 
 base="$PWD"
 function test_template() {
-    set -euo pipefail
+    set -vaeuo pipefail
+    env
     template="$1"
     echo "===== $template =====" | tr '[:print:]' '='
     echo "||    $template    ||"
@@ -15,7 +16,6 @@ function test_template() {
     echo "extra-experimental-features = nix-command flakes" > "$HOME/.config/nix/nix.conf"
 
     cd "$out"
-    touch "$out/.envrc" && direnv deny "$out" # temporarily until we setup .envrc
 
     cp -rf "$base/$template"/* "$out/"
 
@@ -23,9 +23,7 @@ function test_template() {
     test -e "$HOME/.config/direnv/lib/use_devshell_toml.sh"
 
     # use bash strict inside .envrc
-    echo "set -euo pipefail; source $HOME/.config/direnv/lib/use_devshell_toml.sh; use devshell_toml --show-trace" > "$out/.envrc"
-
-    direnv allow "$out"
+    echo "set -euo pipefail; source $HOME/.config/direnv/lib/use_devshell_toml.sh; use devshell_toml --show-trace" > "$out/.envrc" && direnv allow "$out"
     direnv exec "$out" check
 }
 
