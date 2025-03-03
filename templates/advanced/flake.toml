@@ -9,7 +9,7 @@ inputs.nixpkgs.follows = "nixpkgs"
 # Allow devshell.toml to load relative imports
 [inputs.devshell_toml]
 url = "path:./devshell.toml"
-flake = false;
+flake = false
 
 # Custom exposed systems
 [inputs.systems]
