@@ -111,7 +111,8 @@
             FLAKE_DEST="$2"
 
             mkdir -p "$FLAKE_DEST/config"
-            sed -e "s#path:./source#path:$SOURCE_DIR#" ${./lib/devshell-flake.nix} > "$FLAKE_DEST/flake.nix"
+            cp -f "$SOURCE_DIR/devshell.toml" "$FLAKE_DEST/devshell.toml"
+            cp -f ${./lib/devshell-flake.nix} "$FLAKE_DEST/flake.nix"
 
             if test -e "$SOURCE_DIR/flake.toml"; then
               nix eval \
@@ -129,7 +130,7 @@
         test-templates = pkgs.writeShellApplication {
           name = "test-templates";
           text = ''
-            env -i CI="''${CI:-}" PATH="${
+            env -i IS_DARWIN="${builtins.toString pkgs.stdenv.isDarwin}" PATH="${
               with pkgs;
               lib.makeBinPath [
                 direnv

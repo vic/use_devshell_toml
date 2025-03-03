@@ -9,10 +9,14 @@ function test_template() {
   echo "===== $template =====" | tr '[:print:]' '='
   echo "||    $template    ||"
   echo "===== $template =====" | tr '[:print:]' '='
-  if test -z "${CI:-}"; then
-    out="$(mktemp -d)"
+  if test "1" -eq "${IS_DARWIN:-}"; then
+    # We should be using mktemp -d but
+    # There's an issue with direnv and macos tmpfiles.
+    # https://github.com/direnv/direnv/issues/1345
+    out="$(pwd)/.ci"
+    rm -rf $out # make sure we are clean
   else
-    out="$(pwd)/ci"
+    out="$(mktemp -d)"
   fi
   export HOME="$out"
 

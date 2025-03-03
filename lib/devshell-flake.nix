@@ -3,8 +3,8 @@
   inputs.systems.url = "github:nix-systems/default";
   inputs.devshell.url = "github:numtide/devshell";
 
-  inputs.source.url = "path:./source";
-  inputs.source.flake = false;
+  inputs.devshell_toml.url = "path:./devshell.toml";
+  inputs.devshell_toml.flake = false;
 
   inputs.config.url = "path:./config";
 
@@ -16,7 +16,6 @@
     }:
     let
       ins = inputs // inputs.config.inputs;
-      devshell_toml = ins.source + "/devshell.toml";
 
       nixpkgs = ins.nixpkgs or ins.devshell.inputs.nixpkgs;
       perSystem = nixpkgs.lib.genAttrs (import ins.systems);
@@ -39,7 +38,7 @@
             _module.args = {
               inputs = ins;
             };
-            imports = [ (pkgs.devshell.importTOML devshell_toml) ];
+            imports = [ (pkgs.devshell.importTOML ins.devshell_toml) ];
           };
         in
         {
