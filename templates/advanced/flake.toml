@@ -5,6 +5,12 @@ url = "github:nixos/nixpkgs/nixpkgs-unstable"
 url = "github:numtide/devshell"
 inputs.nixpkgs.follows = "nixpkgs"
 
+
+# Allow devshell.toml to load relative imports
+[inputs.devshell_toml]
+url = "path:./devshell.toml"
+flake = false;
+
 # Custom exposed systems
 [inputs.systems]
 url = "path:./systems.nix"
