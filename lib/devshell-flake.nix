@@ -3,7 +3,7 @@
   inputs.systems.url = "github:nix-systems/default";
   inputs.devshell.url = "github:numtide/devshell";
 
-  inputs.source.url = "path:./source";
+  inputs.source.url = "path:";
   inputs.source.flake = false;
 
   inputs.devshell_toml.url = "path:./devshell.toml";
