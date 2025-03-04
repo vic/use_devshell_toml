@@ -110,15 +110,16 @@
             SOURCE_DIR="$1"
             FLAKE_DEST="$2"
 
+            export NIX_CONFIG="extra-experimental-features = flakes nix-command"
+
             mkdir -p "$FLAKE_DEST/config"
+            sed -e "s#config.url = \"path:\"#config.url = \"path:$FLAKE_DEST/config\"#;" ${./lib/devshell-flake.nix} > "$FLAKE_DEST/flake.nix"
             cp -f "$SOURCE_DIR/devshell.toml" "$FLAKE_DEST/devshell.toml"
-            cp -f ${./lib/devshell-flake.nix} "$FLAKE_DEST/flake.nix"
 
             if test -e "$SOURCE_DIR/flake.toml"; then
               nix eval \
                 --file ${./lib/make-config-flake.nix} \
                 --apply "f: f $SOURCE_DIR/flake.toml" \
-                --extra-experimental-features "flakes nix-command" \
                 --raw --impure --offline |\
                 sed -e "s#url = \"path:./#url = \"path:$SOURCE_DIR/#g" > "$FLAKE_DEST/config/flake.nix"
             else
