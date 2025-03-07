@@ -24,7 +24,18 @@ Be sure to checkout [devshell] documentation for more info on how to customize y
 
 > That's it. Just a TOML file, no need for you to write a single line of Nix code.
 
-# Manual Setup
+# Home-Manager Setup
+
+If you are using `home-manager` you can simply include the default homeModule provided by this
+flake and it will install the `use_devshell_toml.sh` helper for you.
+
+```nix
+imports = [ inputs.use_devshell_toml.homeModules.default ];
+```
+```
+```
+
+# Imperative Setup
 
 #### Install/Update the direnv function.
 
