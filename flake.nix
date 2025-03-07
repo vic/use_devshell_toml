@@ -192,6 +192,12 @@
         default.description = "Simple toml devshell";
       };
 
+      homeModules.default =
+        { pkgs, ... }:
+        {
+          home.file.".config/direnv/lib/use_devshell_toml.sh".source = (libs pkgs).direnv_bash;
+        };
+
     };
 
 }
