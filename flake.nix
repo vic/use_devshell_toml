@@ -42,17 +42,17 @@
           ];
         };
 
-        installer = pkgs.writeShellScriptBin "install" ''
+        install = pkgs.writeShellScriptBin "install" ''
           mkdir -p $HOME/.config/direnv/lib
           ln -sfn ${direnv_bash} $HOME/.config/direnv/lib/use_devshell_toml.sh
           echo "Installed use_devshell_toml.sh on direnv lib."
         '';
 
-        app = pkgs.writeShellApplication {
+        default = pkgs.writeShellApplication {
           name = "app";
           text = ''
             if ! test -e "$HOME/.config/direnv/lib/use_devshell_toml.sh"; then
-              ${installer}/bin/install
+              ${install}/bin/install
             fi
 
             test -z "''${1:-}" && exit 0 # terminate if no package names were given
@@ -99,7 +99,7 @@
           '';
         };
 
-        genFlakes = pkgs.writeShellApplication {
+        gen-flakes = pkgs.writeShellApplication {
           name = "gen-flakes";
           runtimeInputs = with pkgs; [
             coreutils
@@ -146,33 +146,16 @@
 
       };
 
-      apps = perSystem (
+      packages = perSystem (
         { pkgs, ... }:
         {
-          default = {
-            type = "app";
-            program = "${(libs pkgs).app}/bin/app";
-          };
-
-          demo = {
-            type = "app";
-            program = "${(libs pkgs).demo}/bin/demo";
-          };
-
-          install = {
-            type = "app";
-            program = "${(libs pkgs).installer}/bin/install";
-          };
-
-          gen-flakes = {
-            type = "app";
-            program = "${(libs pkgs).genFlakes}/bin/gen-flakes";
-          };
-
-          test-templates = {
-            type = "app";
-            program = "${(libs pkgs).test-templates}/bin/test-templates";
-          };
+          inherit (libs pkgs)
+            default
+            demo
+            install
+            gen-flakes
+            test-templates
+            ;
         }
       );
 
@@ -185,7 +168,7 @@
 
     in
     {
-      inherit formatter apps checks;
+      inherit formatter packages checks;
 
       templates = {
         default.path = ./templates/default;
