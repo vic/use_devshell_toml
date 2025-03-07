@@ -32,7 +32,12 @@ flake and it will install the `use_devshell_toml.sh` helper for you.
 ```nix
 imports = [ inputs.use_devshell_toml.homeModules.default ];
 ```
+
+Also, a default package providing the `use_devshell_toml` shell command -the same
+utility as shown in the demo.gif above- is exposed at:
+
 ```
+inputs.use_devshell_toml.packages.<system>.default
 ```
 
 # Imperative Setup
