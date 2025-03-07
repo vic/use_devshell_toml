@@ -49,7 +49,7 @@
         '';
 
         default = pkgs.writeShellApplication {
-          name = "app";
+          name = "use_devshell_toml";
           text = ''
             if ! test -e "$HOME/.config/direnv/lib/use_devshell_toml.sh"; then
               ${install}/bin/install
